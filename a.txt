@@ -1,27 +1,49 @@
 --[[
 	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
 ]]
+repeat task.wait() until game:IsLoaded()
+
 local Plr = game:GetService("Players").LocalPlayer
 local RS = game:GetService("ReplicatedStorage")
 local UIS = game:GetService("UserInputService")
-local Comm = RS:WaitForChild("Communication")
-local RebirthRemote = Comm:WaitForChild("Request Rebirth")
-local PingRemote = Comm:WaitForChild("ActivePing")
-local InactiveRemote = Comm:WaitForChild("Inactivity")
-local AFKTpRemote = Comm:WaitForChild("RequestAFKReturnTeleport")
-local ChestRemote = Comm:WaitForChild("ChestCommunication")
-local TickRemote = Comm:WaitForChild("Tick")
-local FXRemote = Comm:WaitForChild("FX")
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local success, Comm = pcall(RS.WaitForChild, RS, "Communication", 10)
+if not success or not Comm then
+    warn("Không tìm thấy folder Communication! Game chưa load hoặc đã update.")
+    return
+end
+
+local success2, RebirthRemote = pcall(Comm.WaitForChild, Comm, "Request Rebirth", 5)
+local success3, PingRemote = pcall(Comm.WaitForChild, Comm, "ActivePing", 5)
+local success4, InactiveRemote = pcall(Comm.WaitForChild, Comm, "Inactivity", 5)
+local success5, AFKTpRemote = pcall(Comm.WaitForChild, Comm, "RequestAFKReturnTeleport", 5)
+local success6, ChestRemote = pcall(Comm.WaitForChild, Comm, "ChestCommunication", 5)
+local success7, TickRemote = pcall(Comm.WaitForChild, Comm, "Tick", 5)
+local success8, FXRemote = pcall(Comm.WaitForChild, Comm, "FX", 5)
+
+if not RebirthRemote then warn("Thiếu Request Rebirth remote.") end
+
+local raySuccess, Rayfield = pcall(function()
+    return loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
+end)
+if not raySuccess or not Rayfield then 
+    warn("Lỗi load Rayfield UI. Kiểm tra mạng hoặc executor.")
+    return 
+end
 
 local Hub = Rayfield:CreateWindow({
-    Name = "Aura Farm Hub",
+    Name = "Aura Farm Hub V2",
     LoadingTitle = "Aura Farm Hub",
     LoadingSubtitle = "charging aura...",
     ConfigurationSaving = {Enabled = true, FolderName = "AuraFarmHub", FileName = "Config"},
     Discord = {Enabled = false},
     KeySystem = false
+})
+
+Rayfield:Notify({
+    Title = "Aura Farm", 
+    Content = "UI đã lên thành công!", 
+    Duration = 5 
 })
 
 local S = {
@@ -230,7 +252,6 @@ local function farmLoop()
                 local root = getRoot()
                 if root then
                     if (root.Position - target.pos).Magnitude > 30 then
-                        tpToZone = target
                         tpZone(target)
                     else
                         S.curZone = target.name
@@ -290,18 +311,19 @@ local function antiAfk()
         end
         S.afkStarted = false
     end)
-    pcall(function()
-        local old = hookfunction(AFKTpRemote.FireServer, newcclosure(function(self, ...)
-            if self == AFKTpRemote then return end
-            return old(self, ...)
-        end))
-    end)
-    pcall(function()
-        local old2 = hookfunction(InactiveRemote.FireServer, newcclosure(function(self, ...)
-            if self == InactiveRemote then return end
-            return old2(self, ...)
-        end))
-    end)
+-- [DISABLED for Delta compatibility]
+--    pcall(function()
+--        local old = hookfunction(AFKTpRemote.FireServer, newcclosure(function(self, ...)
+--            if self == AFKTpRemote then return end
+--            return old(self, ...)
+--        end))
+--    end)
+--    pcall(function()
+--        local old2 = hookfunction(InactiveRemote.FireServer, newcclosure(function(self, ...)
+--            if self == InactiveRemote then return end
+--            return old2(self, ...)
+--        end))
+--    end)
 end
 
 local function chestLoop()
